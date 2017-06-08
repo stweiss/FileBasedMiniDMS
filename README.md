@@ -5,10 +5,11 @@ FileBasedMiniDMS.php    by Stefan Weiss (2017)
 
 ### CHANGELOG
 Version 0.11 (08.06.2017)
-        New: automatic OCR and automatic rename
+- New: automatic OCR and automatic rename
+        
 Version 0.02 (02.03.2016)
-        release of this file based document management system.
-        sorts files with hashtags into hashtag-folders.
+- release of this file based document management system.
+- sorts files with hashtags into hashtag-folders.
         
 ### INSTALL
 1. Place this file on your FileServer/NAS
