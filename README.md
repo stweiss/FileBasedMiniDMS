@@ -16,7 +16,7 @@ Version 0.02 (02.03.2016)
 3. Create a cronjob on your FileServer/NAS to execute this script regularly.  
    ex. **php /volume1/home/stefan/Scans/FileBasedMiniDMS.php**  
    or redirect stdout to see PHP Warnings/Errors:  
-        **php /volume1/home/stefan/Scans/FileBasedMiniDMS.php > /volume1/home/stefan/Scans/my.log 2>&1**
+        **php /volume1/home/stefan/Scans/FileBasedMiniDMS.php >> /volume1/home/stefan/Scans/my.log 2>&1**  
 
 ### NOTES
 This script works in three steps. Each step can be turned on/off in config.php:
@@ -25,17 +25,17 @@ This script works in three steps. Each step can be turned on/off in config.php:
 OCR pdf files in the $inboxfolder, whose filename matches $matchWithoutOCR
 
 #### Step 1.1: Rename ocr'ed files based on keywords and date
-The pdf is going to be renamed to following structure: "<date> <name> <tags>.pdf"
+The pdf is going to be renamed to following structure: "\<date\> \<name\> \<tags\>.pdf"
 
-*<date>*: The script tries to find a date in the pdf. If none is found the current date is used.
-*<name>*: You can define *$renamerules*. The first rule which matches the ocr'ed content of the first page is used. You can use the operators **&** (AND) and **,** (OR) and you can use the wildcard operators **?** and **\***.
-*<tags>*: In *$tagrules* you can specify your tags. All matching rules will add their tag to the filename. You can use the same operators here.
+*\<date\>*: The script tries to find a date in the pdf. If none is found the current date is used.  
+*\<name\>*: You can define *$renamerules*. The first rule which matches the ocr'ed content of the first page is used. You can use the operators **&** (AND) and **,** (OR) and you can use the wildcard operators **?** and **\***.  
+*\<tags\>*: In *$tagrules* you can specify your tags. All matching rules will add their tag to the filename. You can use the same operators here.  
 
 #### Step 2: Tagging
 This script creates a subfolder for each hashtag it finds in your filenames
 and creates a hardlink in that folder.
 Documents are expected to be stored flat in one folder. Name-structure needs
-to be like "<any name> #hashtag1 #hashtag2.extension".
+to be like "\<any name\> #hashtag1 #hashtag2.extension".
 
 eg: "Documents/Scans/2015-12-25 Bill of Santa Clause #bills #2015.pdf"
 will be linked into:  
