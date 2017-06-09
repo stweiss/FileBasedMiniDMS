@@ -14,10 +14,10 @@ Version 0.02 (02.03.2016)
         
 ### INSTALL
 1. Place this file on your FileServer/NAS
-2. For OCR: Install Docker and pull an ocrmypdf image, eg. ```docker pull jbarlow83/ocrmypdf```
-3. For Automatic rename: make sure that **pdftotext** is available.
+2. For OCR (Step 1): Install Docker and pull an ocrmypdf image, eg. ```docker pull jbarlow83/ocrmypdf```
+3. For Automatic rename (Step 1.1): make sure that **pdftotext** is available.
 3. Adjust settings for this script in *config.php* to fit your needs
-3. Create a cronjob on your FileServer/NAS to execute this script regularly. (In DSM you can do this in *Control Panel* -> *Task Scheduler*)  
+3. Create a cronjob on your FileServer/NAS to execute this script regularly. (In DSM you can do this in *Control Panel* -> *Task Scheduler*) It might be required to assign root privilege.  
    ex. ```php /volume1/home/stefan/Scans/FileBasedMiniDMS.php```  
    or redirect stdout to see PHP Warnings/Errors:  
        ```php /volume1/home/stefan/Scans/FileBasedMiniDMS.php >> /volume1/home/stefan/Scans/my.log 2>&1```  
