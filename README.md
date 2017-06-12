@@ -1,7 +1,7 @@
 # FileBasedMiniDMS
 
 FileBasedMiniDMS.php    by Stefan Weiss (2017)  
-*Version 0.11 08.06.2017*  
+*Version 0.12a 12.06.2017*  
 https://github.com/stweiss/FileBasedMiniDMS  
 
 ### CHANGELOG
