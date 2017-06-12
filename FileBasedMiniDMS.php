@@ -2,7 +2,7 @@
     /* 
         FileBasedMiniDMS.php    by Stefan Weiss (2017)
     */
-    $version = "0.12a";
+    $version = "0.12b";
     
     require(dirname(__FILE__) . "/config.php");
     
@@ -105,7 +105,7 @@
         			trace(LOG_DEBUG, "pdftotext output:\n " . implode("\n ", $out) . "\n");
                     
         			// == rename rules
-        			$namedate = findPdfDate($out);
+        			$namedate = findPdfDate($out, $scan);
                     // name: default should be original filename without starting-date and without hashtags
         			$namename = findPdfSubject($out, stripDateAndTags($scanpath_parts['filename']));
                     
@@ -229,10 +229,10 @@
         return false;
     }
     
-    function findPdfDate($textarr) {
+    function findPdfDate($textarr, $filename) {
         global $now, $dateseperator;
-        // find dates
-        $namedate = $now->format('Y' . $dateseperator . 'm' . $dateseperator . 'd'); // default to today
+        // default to file creation time
+        $namedate = date('Y' . $dateseperator . 'm' . $dateseperator . 'd', filectime($filename));
         foreach ($textarr as $line) {
             unset($matches);
             if (preg_match("/([0-3][0-9]).([0-1][0-9]).(20[0-9][0-9])/", $line, $matches)) { // dd.mm.20yy
