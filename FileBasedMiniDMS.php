@@ -2,7 +2,7 @@
     /* 
         FileBasedMiniDMS.php    by Stefan Weiss (2017)
     */
-    $version = "0.11";
+    $version = "0.12a";
     
     require(dirname(__FILE__) . "/config.php");
     
@@ -230,23 +230,23 @@
     }
     
     function findPdfDate($textarr) {
-        global $now;
+        global $now, $dateseperator;
         // find dates
-        $namedate = $now->format('Y-m-d'); // default to today
+        $namedate = $now->format('Y' . $dateseperator . 'm' . $dateseperator . 'd'); // default to today
         foreach ($textarr as $line) {
             unset($matches);
             if (preg_match("/([0-3][0-9]).([0-1][0-9]).(20[0-9][0-9])/", $line, $matches)) { // dd.mm.20yy
-                $namedate = join("-", array($matches[3], $matches[2], $matches[1]));
+                $namedate = join($dateseperator, array($matches[3], $matches[2], $matches[1]));
                 break;
             }
             unset($matches);
             if (preg_match("/([0-1][0-9]).([0-3][0-9]).(20[0-9][0-9])/", $line, $matches)) { // mm.dd.20yy
-                $namedate = join("-", array($matches[3], $matches[1], $matches[2]));
+                $namedate = join($dateseperator, array($matches[3], $matches[1], $matches[2]));
                 break;
             }
             unset($matches);
             if (preg_match("/(20[0-9][0-9]).([0-3][0-9]).([0-1][0-9])/", $line, $matches)) { // 20yy.mm.dd
-                $namedate = join("-", array($matches[1], $matches[2], $matches[3]));
+                $namedate = join($dateseperator, array($matches[1], $matches[2], $matches[3]));
                 break;
             }
         }
