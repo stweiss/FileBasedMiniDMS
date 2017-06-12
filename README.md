@@ -5,6 +5,9 @@ FileBasedMiniDMS.php    by Stefan Weiss (2017)
 https://github.com/stweiss/FileBasedMiniDMS  
 
 ### CHANGELOG
+Version 0.12a (12.06.2017)
+- New: $dateseperator can be modified in config.php 
+
 Version 0.11 (08.06.2017)
 - New: automatic OCR and automatic rename
         
