@@ -2,7 +2,7 @@
     /* 
         FileBasedMiniDMS.php    by Stefan Weiss (2017)
     */
-    $version = "0.12b2";
+    $version = "0.12b3";
     
     require(dirname(__FILE__) . "/config.php");
     
@@ -192,6 +192,7 @@
                 $ANDarr = explode('&', $search);
                 if (matchAll($ANDarr, $textarr)) {
                     array_push($tagsarr, $tag);
+                    continue 2;
                 }
             }            
         }
