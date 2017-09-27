@@ -2,7 +2,7 @@
     /* 
         FileBasedMiniDMS.php    by Stefan Weiss (2017)
     */
-    $version = "0.12b";
+    $version = "0.12b2";
     
     require(dirname(__FILE__) . "/config.php");
     
@@ -53,76 +53,77 @@
     $now->setTimezone(new DateTimeZone($timezone));
     
     if ($doOCR) {
-    	trace(LOG_INFO, "Scanning for new scans: $inboxfolder\n");
-    	$newscans = listAllFiles($inboxfolder);
-    	
-    	foreach ($newscans as $scan) {
+        trace(LOG_INFO, "Scanning for new scans: $inboxfolder\n");
+        $newscans = listAllFiles($inboxfolder);
+        
+        foreach ($newscans as $scan) {
             $scanpath_parts = pathinfo($scan);
             if (0 != strcasecmp("pdf", $scanpath_parts['extension']))
                 continue;
             
             // OCR new pdf's
-        	if (fnmatch($matchWithoutOCR, $scanpath_parts['filename'], FNM_CASEFOLD))
-        	{
-        		$ocrfilename = getOCRfilename($scan);
+            if (fnmatch($matchWithoutOCR, $scanpath_parts['filename'], FNM_CASEFOLD))
+            {
+                $ocrfilename = getOCRfilename($scan);
                 $user_id = exec('stat -c "%u" "'. $scan .'"');
                 if (!is_numeric($user_id))
                 {
                     trace(LOG_ERROR, "Could not get uid of file $scan\n");
                     continue;
                 }
-        		$cmd = "docker run --name ocr --rm -u $user_id --cpu-quota=80000 -v \"" . dirname($scan) . ":/home/docker\" " .
-        		       "$dockercontainer $ocropt \"" . basename($scan) . "\" \"" . basename($ocrfilename) . "\" 2>&1";
-        		trace(LOG_DEBUG, "Run Docker: $cmd\n");
-        		
-        		unset($dockeroutput);
-        		if (!$testmode) exec($cmd, $dockeroutput, $dockerret);
-        		if ($dockerret == 0) {
-        			trace(LOG_INFO, "OCR'd \"$scan\" with status $dockerret\n");
-        			trace(LOG_DEBUG, "Docker output:\n " . implode("\n ", $dockeroutput) . "\n");
-        			if (!$testmode) recyclefile($inboxfolder, $scan);
-        		} else {
-        			trace(LOG_ERR, "Docker output:\n " . implode(" \n", $dockeroutput) . "\n");
-        		}
-        		
-        		$scan = $ocrfilename;
+                $cmd = "docker run --name ocr --rm -u $user_id --cpu-quota=80000 -v \"" . dirname($scan) . ":/home/docker\" " .
+                       "$dockercontainer $ocropt \"" . basename($scan) . "\" \"" . basename($ocrfilename) . "\" 2>&1";
+                trace(LOG_DEBUG, "Run Docker: $cmd\n");
+                
+                unset($dockeroutput);
+                if (!$testmode) exec($cmd, $dockeroutput, $dockerret);
+                if ($dockerret == 0) {
+                    trace(LOG_INFO, "OCR'd \"$scan\" with status $dockerret\n");
+                    trace(LOG_DEBUG, "Docker output:\n " . implode("\n ", $dockeroutput) . "\n");
+                    if (!$testmode) recyclefile($inboxfolder, $scan);
+                } else {
+                    trace(LOG_ERR, "Docker output:\n " . implode(" \n", $dockeroutput) . "\n");
+                }
+                
+                $scan = $ocrfilename;
                 $scanpath_parts = pathinfo($scan);
-        	}
-        	
-    		// Rename new PDF's based on rules
-	    	if ($doRenameAfterOCR &&
-	    		fnmatch($OCRPrefix . '*', $scanpath_parts['filename'], FNM_CASEFOLD))
-	    	{
-	    		unset($out);
-	    		unset($namedate);
-	    		// get text from first page only
-	    		$cmd = "pdftotext -l 1 \"$scan\" - 2>&1";
-	    		trace(LOG_DEBUG, "run: $cmd\n");
-	    		
+            }
+            
+            // Rename new PDF's based on rules
+            if ($doRenameAfterOCR &&
+                fnmatch($OCRPrefix . '*', $scanpath_parts['filename'], FNM_CASEFOLD))
+            {
+                unset($out);
+                unset($namedate);
+                // get text from first page only
+                $cmd = "pdftotext -l 1 \"$scan\" - 2>&1";
+                trace(LOG_DEBUG, "run: $cmd\n");
+                
                 if ($ocrtotxt) exec("pdftotext -l 1 \"$scan\" 2>&1");
-	    		exec($cmd, $out, $ret);
-	    		if ($ret == 0) {
-        			trace(LOG_DEBUG, "pdftotext output:\n " . implode("\n ", $out) . "\n");
+                exec($cmd, $out, $ret);
+                if ($ret == 0) {
+                    trace(LOG_DEBUG, "pdftotext output:\n " . implode("\n ", $out) . "\n");
                     
-        			// == rename rules
-        			$namedate = findPdfDate($out, $scan);
+                    // == rename rules
+                    $namedate = findPdfDate($out, $scan);
                     // name: default should be original filename without starting-date and without hashtags
-        			$namename = findPdfSubject($out, stripDateAndTags($scanpath_parts['filename']));
+                    $namename = findPdfSubject($out, stripDateAndTags($scanpath_parts['filename']));
                     
+                    $tags = array();
                     gethashtags($scanpath_parts['filename'], $tags); // get tags from source filename and keep them
                     findPdfTags($out, $tags);
                     foreach($tags as &$tag) {
                         $tag = strtolower($tag);
                     }
                     $tags = array_unique($tags);
-        			$nametags = "";
+                    $nametags = "";
                     if (count($tags) > 0) {
                         // get tags from source filename and keep them
                         $nametags = " " . implode(" ", $tags);
                     }
-        			
-        			// == do rename
-        			$newname = $scanpath_parts['dirname'] . "/$namedate " . $namename . "$nametags." . $scanpath_parts['extension'];
+                    
+                    // == do rename
+                    $newname = $scanpath_parts['dirname'] . "/$namedate " . $namename . "$nametags." . $scanpath_parts['extension'];
                     
                     if ($newname == $scan) {
                         trace(LOG_DEBUG, "rename not required: $scan\n");
@@ -130,31 +131,31 @@
                     }
                     
                     $newname = getNextFreeFilename($newname);
-        			trace(LOG_INFO, "Renaming $scan\n");
+                    trace(LOG_INFO, "Renaming $scan\n");
                     trace(LOG_INFO, "      to $newname\n");
                     if (!$testmode && !rename($scan, $newname))
                     {
                         trace(LOG_ERR, "Could not rename '$scan' to '$newname'\n");
                     }
-        		} else {
-        			trace(LOG_ERR, "pdftotext output:\n " . implode(" \n", $out) . "\n");
-        		}
-	    	}
-    	}
+                } else {
+                    trace(LOG_ERR, "pdftotext output:\n " . implode(" \n", $out) . "\n");
+                }
+            }
+        }
     
     }
     
     if ($doTagging) {
-	    trace(LOG_INFO, "Scanning for Tagging: $archivefolder\n");
-	    $unusedFiles = listAllFiles($tagsfolder); //all by default, remove files from array if they still exist later
-	    
-	    if ($handle = opendir($archivefolder)) {
-	        while (false !== ($entry = readdir($handle))) {
-	            if ($entry != "." && $entry != ".." &&
-	            	!is_dir("$archivefolder/$entry") &&
-	            	0<gettags($entry, $tags))
-	            {
-                	// Process Hashtags
+        trace(LOG_INFO, "Scanning for Tagging: $archivefolder\n");
+        $unusedFiles = listAllFiles($tagsfolder); //all by default, remove files from array if they still exist later
+        
+        if ($handle = opendir($archivefolder)) {
+            while (false !== ($entry = readdir($handle))) {
+                if ($entry != "." && $entry != ".." &&
+                    !is_dir("$archivefolder/$entry") &&
+                    0<gettags($entry, $tags))
+                {
+                    // Process Hashtags
                     foreach ($tags as $tag) {
                         if (!is_dir("$tagsfolder/$tag") &&
                             !$testmode &&
@@ -175,11 +176,11 @@
                                 trace(LOG_ERR, "ERROR linking \"$entry\" to \"tags/$tag/$namewithoutthistag\"\n");
                         }
                     }
-	            }
-	        }
-	        closedir($handle);
-	    }
-	    if (!$testmode) cleanUpTagFolder($unusedFiles, $tagsfolder);
+                }
+            }
+            closedir($handle);
+        }
+        if (!$testmode) cleanUpTagFolder($unusedFiles, $tagsfolder);
     }
 
     function findPdfTags($textarr, &$tagsarr) {
@@ -188,7 +189,7 @@
         foreach ($tagrules as $tag => $rule) {
             $ORarr = explode(',', $rule);
             foreach ($ORarr as $search) {
-                $ANDarr = explode('&', $rule);
+                $ANDarr = explode('&', $search);
                 if (matchAll($ANDarr, $textarr)) {
                     array_push($tagsarr, $tag);
                 }
@@ -201,7 +202,7 @@
         foreach ($renamerules as $rule => $name) {
             $ORarr = explode(',', $rule);
             foreach ($ORarr as $search) {
-                $ANDarr = explode('&', $rule);
+                $ANDarr = explode('&', $search);
                 if (matchAll($ANDarr, $textarr)) {
                     return $name;
                 }
@@ -254,51 +255,51 @@
     }
     
     function recyclefile($basepath, $file) {
-    	global $recyclebin;
-    	
-    	if (strlen($file) > strlen($basepath) &&
-    		0 == strncmp($basepath, $file, strlen($basepath)))
-    	{
-    		$file = substr($file, strlen($basepath)+1);
-    		trace(LOG_DEBUG, "recyclefile: removed basepath '$basepath' from file '$file'\n");
-    	}
-        		
-    	if (!empty($recyclebin)) {
-    		if (!is_dir(dirname("$recyclebin/$file")))
-    			mkdir(dirname("$recyclebin/$file"), 0777, true);
-    		if (is_dir($recyclebin))
-    			rename("$basepath/$file", getNextFreeFilename("$recyclebin/$file"));
-    	} else {
-    		unlink("$basepath/$file");
-    	}
+        global $recyclebin;
+        
+        if (strlen($file) > strlen($basepath) &&
+            0 == strncmp($basepath, $file, strlen($basepath)))
+        {
+            $file = substr($file, strlen($basepath)+1);
+            trace(LOG_DEBUG, "recyclefile: removed basepath '$basepath' from file '$file'\n");
+        }
+                
+        if (!empty($recyclebin)) {
+            if (!is_dir(dirname("$recyclebin/$file")))
+                mkdir(dirname("$recyclebin/$file"), 0777, true);
+            if (is_dir($recyclebin))
+                rename("$basepath/$file", getNextFreeFilename("$recyclebin/$file"));
+        } else {
+            unlink("$basepath/$file");
+        }
     }
     
     function getNextFreeFilename($filepath) {
-    	$out = $filepath;
+        $out = $filepath;
         $file_parts = pathinfo($filepath);
-    	
+        
         $a = $file_parts['dirname'] . "/" . $file_parts['filename'];
         $b = $file_parts['extension'];
-    	$i = 0;
-    	
+        $i = 0;
+        
         if (!empty($b))
-    	{
-	    	while (file_exists($out)) {
-	    		$out = $a . " " . ++$i . "." . $b;
-	    	}
-    	} else {
-    		while (file_exists($out)) {
-	    		$out = "$filepath." . ++$i;
-	    	}
-    	}
-    	return $out;
+        {
+            while (file_exists($out)) {
+                $out = $a . " " . ++$i . "." . $b;
+            }
+        } else {
+            while (file_exists($out)) {
+                $out = "$filepath." . ++$i;
+            }
+        }
+        return $out;
     }
     
     function getOCRfilename($pdf) {
-    	global $OCRPrefix;
+        global $OCRPrefix;
         
         $pdf_parts = pathinfo($pdf);
-    	return getNextFreeFilename($pdf_parts['dirname'] . "/$OCRPrefix" . trim($pdf_parts['filename']) .'.'. $pdf_parts['extension']);
+        return getNextFreeFilename($pdf_parts['dirname'] . "/$OCRPrefix" . trim($pdf_parts['filename']) .'.'. $pdf_parts['extension']);
     }
     
     // @returns count of tags found or FALSE on error
