@@ -2,7 +2,7 @@
     /* 
         FileBasedMiniDMS.php    by Stefan Weiss (2017)
     */
-    $version = "0.12b3";
+    $version = "0.12b4";
     
     require(dirname(__FILE__) . "/config.php");
     
@@ -71,16 +71,22 @@
                     trace(LOG_ERROR, "Could not get uid of file $scan\n");
                     continue;
                 }
-                $cmd = "docker run --name ocr --rm -u $user_id --cpu-quota=80000 -v \"" . dirname($scan) . ":/home/docker\" " .
+                $cmd = "docker run --name ocr --rm -u $user_id -v \"" . dirname($scan) . ":/home/docker\" " .
                        "$dockercontainer $ocropt \"" . basename($scan) . "\" \"" . basename($ocrfilename) . "\" 2>&1";
                 trace(LOG_DEBUG, "Run Docker: $cmd\n");
                 
                 unset($dockeroutput);
+                $dockerret = 0;
                 if (!$testmode) exec($cmd, $dockeroutput, $dockerret);
                 if ($dockerret == 0) {
                     trace(LOG_INFO, "OCR'd \"$scan\" with status $dockerret\n");
                     trace(LOG_DEBUG, "Docker output:\n " . implode("\n ", $dockeroutput) . "\n");
-                    if (!$testmode) recyclefile($inboxfolder, $scan);
+                    if (!$testmode)
+                    {
+                        // preserve: mode,ownership,timestamps
+                        exec("cp -p --attributes-only \"$scan\" \"$ocrfilename\"");
+                        recyclefile($inboxfolder, $scan);
+                    }
                 } else {
                     trace(LOG_ERR, "Docker output:\n " . implode(" \n", $dockeroutput) . "\n");
                 }
@@ -234,7 +240,8 @@
     function findPdfDate($textarr, $filename) {
         global $now, $dateseperator;
         // default to file creation time
-        $namedate = date('Y' . $dateseperator . 'm' . $dateseperator . 'd', filectime($filename));
+        // linux: access (last read) / modify (last content modification) / change (last meta data change)
+        $namedate = date('Y' . $dateseperator . 'm' . $dateseperator . 'd', filemtime($filename));
         foreach ($textarr as $line) {
             unset($matches);
             if (preg_match("/([0-3][0-9]).([0-1][0-9]).(20[0-9][0-9])/", $line, $matches)) { // dd.mm.20yy
