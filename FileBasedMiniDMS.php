@@ -244,17 +244,17 @@
         $namedate = date('Y' . $dateseperator . 'm' . $dateseperator . 'd', filemtime($filename));
         foreach ($textarr as $line) {
             unset($matches);
-            if (preg_match("/([0-3][0-9]).([0-1][0-9]).(20[0-9][0-9])/", $line, $matches)) { // dd.mm.20yy
+            if (preg_match("/(31|30|[012]\d|\d)[.\/](0\d|1[012]|\d)[.\/](20[0-9][0-9])/", $line, $matches)) { // dd.mm.20yy
                 $namedate = join($dateseperator, array($matches[3], $matches[2], $matches[1]));
                 break;
             }
             unset($matches);
-            if (preg_match("/([0-1][0-9]).([0-3][0-9]).(20[0-9][0-9])/", $line, $matches)) { // mm.dd.20yy
+            if (preg_match("/(0\d|1[012]|\d)[.\/](31|30|[012]\d|\d)[.\/](20[0-9][0-9])/", $line, $matches)) { // mm.dd.20yy
                 $namedate = join($dateseperator, array($matches[3], $matches[1], $matches[2]));
                 break;
             }
             unset($matches);
-            if (preg_match("/(20[0-9][0-9]).([0-3][0-9]).([0-1][0-9])/", $line, $matches)) { // 20yy.mm.dd
+            if (preg_match("/(20[0-9][0-9])[.\/](31|30|[012]\d|\d)[.\/](0\d|1[012]|\d)/", $line, $matches)) { // 20yy.mm.dd
                 $namedate = join($dateseperator, array($matches[1], $matches[2], $matches[3]));
                 break;
             }
