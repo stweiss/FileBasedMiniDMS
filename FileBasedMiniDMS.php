@@ -2,7 +2,7 @@
     /* 
         FileBasedMiniDMS.php    by Stefan Weiss (2017)
     */
-    $version = "0.12b4";
+    $version = "0.13";
     
     require(dirname(__FILE__) . "/config.php");
     
