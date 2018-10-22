@@ -1,10 +1,13 @@
 # FileBasedMiniDMS
 
-FileBasedMiniDMS.php    by Stefan Weiss (2017)  
-*Version 0.11 08.06.2017*  
+FileBasedMiniDMS.php    by Stefan Weiss (2017-2018)  
+*Version 0.13 22.10.2018*  
 https://github.com/stweiss/FileBasedMiniDMS  
 
 ### CHANGELOG
+Version 0.13 (22.10.2018)
+- improved detection of dates (thanks vanto) https://github.com/stweiss/FileBasedMiniDMS/pull/7
+
 Version 0.11 (08.06.2017)
 - New: automatic OCR and automatic rename
         
