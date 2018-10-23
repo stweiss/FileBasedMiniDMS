@@ -8,6 +8,10 @@ https://github.com/stweiss/FileBasedMiniDMS
 Version 0.13 (22.10.2018)
 - improved detection of dates (thanks vanto) https://github.com/stweiss/FileBasedMiniDMS/pull/7
 
+Version 0.12b (12.06.2017)
+- New: $dateseperator can be modified in config.php 
+- Change: Default date for rename is now creation date of the pdf. (was "now" before)
+
 Version 0.11 (08.06.2017)
 - New: automatic OCR and automatic rename
         

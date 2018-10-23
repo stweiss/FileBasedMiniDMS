@@ -35,6 +35,10 @@
     // Everything here is subject to be deleted! Without trailing (back)slash!
     $tagsfolder = "/volume1/homes/stefan/Dokumente/Scans/tags";
     
+    // Filenames are prepended  with a date in format "Year-Month-Day". You can adjust or
+    // clear the seperator here to suit your needs.
+    $dateseperator = "-";
+
     // $logfile is the path to a logfile OR "syslog" OR "stdout"
     //$logfile = dirname(__FILE__) . "/FileBasedMiniDMS.log";
     $logfile = "/volume1/homes/stefan/Dokumente/Scans/_inbox/FileBasedMiniDMS.log";
