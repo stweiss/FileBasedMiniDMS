@@ -2,7 +2,7 @@
     /* 
         FileBasedMiniDMS.php    by Stefan Weiss (2017)
     */
-    $version = "0.13";
+    $version = "0.13a-ocrprefix";
     
     require(dirname(__FILE__) . "/config.php");
     
@@ -59,6 +59,11 @@
         foreach ($newscans as $scan) {
             $scanpath_parts = pathinfo($scan);
             if (0 != strcasecmp("pdf", $scanpath_parts['extension']))
+                continue;
+            
+            // skip already OCR'ed files based on $OCRPrefix
+            if ($OCRPrefix &&
+                fnmatch($OCRPrefix . '*', $scanpath_parts['filename'], FNM_CASEFOLD))
                 continue;
             
             // OCR new pdf's
