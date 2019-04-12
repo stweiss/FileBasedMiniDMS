@@ -6,10 +6,11 @@ https://github.com/stweiss/FileBasedMiniDMS
 
 ### CHANGELOG
 Version 0.14 (12.04.2019)
-- don't ORC files, which already have been ocr'ed. Should have been happening only in special rare cases.
+- don't ORC files, which already have been ocr'ed. Should have been happening only in special rare cases. (issue #9)
+- change to long php opening tags for better php compatibility (issue #6)
 
 Version 0.13 (22.10.2018)
-- improved detection of dates (thanks vanto) https://github.com/stweiss/FileBasedMiniDMS/pull/7
+- improved detection of dates (thanks vanto) (pull #7)
 
 Version 0.12b (12.06.2017)
 - New: $dateseperator can be modified in config.php 
