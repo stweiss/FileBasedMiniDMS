@@ -1,8 +1,8 @@
 <?php
     /* 
-        FileBasedMiniDMS.php    by Stefan Weiss (2017)
+        FileBasedMiniDMS.php    by Stefan Weiss (2017-2019)
     */
-    $version = "0.13a-ocrprefix";
+    $version = "0.14";
     
     require(dirname(__FILE__) . "/config.php");
     
