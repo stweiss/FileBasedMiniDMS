@@ -1,10 +1,13 @@
 # FileBasedMiniDMS
 
 FileBasedMiniDMS.php    by Stefan Weiss (2017-2018)  
-*Version 0.13 22.10.2018*  
+*Version 0.14 12.04.2019*  
 https://github.com/stweiss/FileBasedMiniDMS  
 
 ### CHANGELOG
+Version 0.14 (12.04.2019)
+- don't ORC files, which already have been ocr'ed. Should have been happening only in special rare cases.
+
 Version 0.13 (22.10.2018)
 - improved detection of dates (thanks vanto) https://github.com/stweiss/FileBasedMiniDMS/pull/7
 
