@@ -2,7 +2,7 @@
     /* 
         FileBasedMiniDMS.php    by Stefan Weiss (2017-2019)
     */
-    $version = "0.14";
+    $version = "0.15";
     
     require(dirname(__FILE__) . "/config.php");
     
@@ -48,17 +48,22 @@
         }
     }
     
+    touch($inboxfolder . "/.FbmDMS_is_active");
     if ($logfile == "syslog") openlog("FileBasedMiniDMS", LOG_PID, LOG_USER);
     $now = new DateTime();
     $now->setTimezone(new DateTimeZone($timezone));
     
     if ($doOCR) {
-        trace(LOG_INFO, "Scanning for new scans: $inboxfolder\n");
+        trace(LOG_DEBUG, "Scanning for new scans: $inboxfolder\n");
         $newscans = listAllFiles($inboxfolder);
         
         foreach ($newscans as $scan) {
             $scanpath_parts = pathinfo($scan);
             if (0 != strcasecmp("pdf", $scanpath_parts['extension']))
+                continue;
+            
+            // skip empty files
+            if (filesize($scan) == 0)
                 continue;
             
             // skip already OCR'ed files based on $OCRPrefix
@@ -76,8 +81,7 @@
                     trace(LOG_ERROR, "Could not get uid of file $scan\n");
                     continue;
                 }
-                $cmd = "docker run --name ocr --rm -u $user_id -v \"" . dirname($scan) . ":/home/docker\" " .
-                       "$dockercontainer $ocropt \"" . basename($scan) . "\" \"" . basename($ocrfilename) . "\" 2>&1";
+                $cmd = "docker run --name ocr --rm -i $dockercontainer $ocropt - - <\"$scan\" 2>&1 >\"$ocrfilename\"";
                 trace(LOG_DEBUG, "Run Docker: $cmd\n");
                 
                 unset($dockeroutput);
@@ -193,7 +197,11 @@
         }
         if (!$testmode) cleanUpTagFolder($unusedFiles, $tagsfolder);
     }
+    unlink($inboxfolder . "/.FbmDMS_is_active");
+    trace(LOG_DEBUG, "Scanning finished!\n");
 
+    
+    
     function findPdfTags($textarr, &$tagsarr) {
         global $tagrules;
         
