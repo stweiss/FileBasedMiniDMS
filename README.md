@@ -1,10 +1,13 @@
 # FileBasedMiniDMS
 
 FileBasedMiniDMS.php    by Stefan Weiss (2017-2019)  
-*Version 0.14 12.04.2019*  
+*Version 0.15 27.09.2019*  
 https://github.com/stweiss/FileBasedMiniDMS  
 
 ### CHANGELOG
+Version 0.15 (27.09.2019)
+- now compatible with ocrmypdf v9.0.0
+
 Version 0.14 (12.04.2019)
 - don't ORC files, which already have been ocr'ed. Should have been happening only in special rare cases. (issue #9)
 - change to long php opening tags for better php compatibility (issue #6)
