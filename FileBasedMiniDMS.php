@@ -2,7 +2,7 @@
     /* 
         FileBasedMiniDMS.php    by Stefan Weiss (2017-2019)
     */
-    $version = "0.15";
+    $version = "0.16";
     
     require(dirname(__FILE__) . "/config.php");
     
@@ -75,12 +75,6 @@
             if (fnmatch($matchWithoutOCR, $scanpath_parts['filename'], FNM_CASEFOLD))
             {
                 $ocrfilename = getOCRfilename($scan);
-                $user_id = exec('stat -c "%u" "'. $scan .'"');
-                if (!is_numeric($user_id))
-                {
-                    trace(LOG_ERROR, "Could not get uid of file $scan\n");
-                    continue;
-                }
                 $cmd = "docker run --name ocr --rm -i $dockercontainer $ocropt - - <\"$scan\" 2>&1 >\"$ocrfilename\"";
                 trace(LOG_DEBUG, "Run Docker: $cmd\n");
                 
