@@ -1,9 +1,15 @@
 # FileBasedMiniDMS
 
-FileBasedMiniDMS.php    by Stefan Weiss (2017-2019)  
-https://github.com/stweiss/FileBasedMiniDMS  
+FileBasedMiniDMS.php    by Stefan Weiss (2017-2021)
+https://github.com/stweiss/FileBasedMiniDMS
 
 ### CHANGELOG
+Version 0.17 (10.02.2021)
+- renamed default config.php to config.php.template (in git), so you can pull without overwriting your local config.php (issue #13)
+- introduced option to set the detected date as file date (variable $setfiletime, enabled by default) (issue #5)
+- skip future dates during date detection
+- minor bugfixes
+
 Version 0.16 (29.10.2019)
 - Add date format 01. Januar, 2019 / 01 Januar 2019 (thanks @SirUli) (pull #12)
 - internal clean up
@@ -33,8 +39,9 @@ Version 0.02 (02.03.2016)
 1. Place this file on your FileServer/NAS
 2. For OCR (Step 1): Install Docker and pull an ocrmypdf image, eg. ```docker pull jbarlow83/ocrmypdf```
 3. For Automatic rename (Step 1.1): make sure that **pdftotext** is available.
-3. Adjust settings for this script in *config.php* to fit your needs
-3. Create a cronjob on your FileServer/NAS to execute this script regularly. (In DSM you can do this in *Control Panel* -> *Task Scheduler*) It might be required to assign root privilege.  
+4. Copy *config.php.template* to *config.php*.
+5. Adjust settings for this script in *config.php* to fit your needs.
+6. Create a cronjob on your FileServer/NAS to execute this script regularly. (In DSM you can do this in *Control Panel* -> *Task Scheduler*) It might be required to assign root privilege.  
    ex. ```php /volume1/home/stefan/Scans/FileBasedMiniDMS.php```  
    or redirect stdout to see PHP Warnings/Errors:  
        ```php /volume1/home/stefan/Scans/FileBasedMiniDMS.php >> /volume1/home/stefan/Scans/my.log 2>&1```  

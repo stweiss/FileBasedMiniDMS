@@ -1,10 +1,18 @@
 <?php
     /* 
-        FileBasedMiniDMS.php    by Stefan Weiss (2017-2019)
+        FileBasedMiniDMS.php    by Stefan Weiss (2017-2021)
     */
-    $version = "0.16";
+    $version = "0.17";
     
-    require(dirname(__FILE__) . "/config.php");
+    // set some defaults
+    $setfiletime = true;
+    
+    if (is_file(dirname(__FILE__) . "/config.php")) {
+        include dirname(__FILE__) . "/config.php";
+    } else {
+        fwrite(STDERR, "ERROR: Configuration file config.php not found. Please create it by copying config.php.template and adjusting it.");
+        exit(1);
+    }
     
     
     /* ------------------------------------------------------ */
@@ -48,10 +56,13 @@
         }
     }
     
+    if (is_file($inboxfolder . "/.FbmDMS_is_active")) {
+        fwrite(STDERR, "ERROR: FileBasedMiniDMS is already active. If this is not true, please delete the lockfile .FbmDMS_is_active.");
+        exit(1);
+    }
+    
     touch($inboxfolder . "/.FbmDMS_is_active");
     if ($logfile == "syslog") openlog("FileBasedMiniDMS", LOG_PID, LOG_USER);
-    $now = new DateTime();
-    $now->setTimezone(new DateTimeZone($timezone));
     
     if ($doOCR) {
         trace(LOG_DEBUG, "Scanning for new scans: $inboxfolder\n");
@@ -114,7 +125,8 @@
                     trace(LOG_DEBUG, "pdftotext output:\n " . implode("\n ", $out) . "\n");
                     
                     // == rename rules
-                    $namedate = findPdfDate($out, $scan);
+                    $pdftime = 0;
+                    $namedate = findPdfDate($out, $scan, $pdftime);
                     // name: default should be original filename without starting-date and without hashtags
                     $namename = findPdfSubject($out, stripDateAndTags($scanpath_parts['filename']));
                     
@@ -145,6 +157,13 @@
                     if (!$testmode && !rename($scan, $newname))
                     {
                         trace(LOG_ERR, "Could not rename '$scan' to '$newname'\n");
+                    }
+                    
+                    if ($setfiletime)
+                    {
+                        // == set timestamp to detected date/time based on content
+                        trace(LOG_INFO,"set filetime of " . $newname . " to:" . date("Y-m-d", $pdftime) . "\n");
+                        touch($newname, $pdftime);
                     }
                 } else {
                     trace(LOG_ERR, "pdftotext output:\n " . implode(" \n", $out) . "\n");
@@ -244,35 +263,39 @@
         return false;
     }
     
-    function findPdfDate($textarr, $filename) {
-        global $now, $dateseperator;
+    function findPdfDate($textarr, $filename, &$filetime) {
+        global $dateseperator;
         // default to file creation time
         // linux: access (last read) / modify (last content modification) / change (last meta data change)
-        $namedate = date('Y' . $dateseperator . 'm' . $dateseperator . 'd', filemtime($filename));
+        $filetime = filemtime($filename);
+        trace(LOG_DEBUG, " filetime:" . date("Y-m-d", $filetime) . "\n");
+        
         foreach ($textarr as $line) {
             unset($matches);
-            if (preg_match("/(31|30|[012]\d|\d)(?:\s|,|\.)+(Jan(?:uar)(?:y)?|Feb(?:ruar)(?:y)?|(Mar(?:ch)|Mär(?:z))?|Apr(?:il)?|Ma(?:i|y)|Jun(?:e|i)?|Jul(?:y|i)?|Aug(?:ust)?|Sep(?:t)(?:ember)?|O(?:c|k)t(?:ober)?|Nov(?:ember)?|De(?:c|z)(?:ember)?)(?:\s|,|\.)+(20[0-9][0-9])/", $line, $matches)) { // 01. Januar, 2019 / 01 Januar 2019 etc
+            unset($foundtime);
+            
+            if (preg_match("/(31|30|[012]\d|\d)?(?:\s|,|\.)+(Jan(?:uar)(?:y)?|Feb(?:ruar)(?:y)?|(Mar(?:ch)|Mär(?:z))?|Apr(?:il)?|Ma(?:i|y)|Jun(?:e|i)?|Jul(?:y|i)?|Aug(?:ust)?|Sep(?:t)(?:ember)?|O(?:c|k)t(?:ober)?|Nov(?:ember)?|De(?:c|z)(?:ember)?)(?:\s|,|\.)+(20[0-9][0-9])/i", $line, $matches)) { // 01. Januar, 2019 / 01 Januar 2019 etc
                 // https://stackoverflow.com/questions/41184853/php-parsing-of-german-date
                 $germanMonths = array('januar'=>'january', 'jan'=>'january', 'jän'=>'january', 'februar'=>'february', 'feb'=>'february', 'marz'=>'march', 'märz'=>'march', 'mai'=>'may', 'juni'=>'june', 'oktober'=>'october', 'okt'=>'october', 'sept'=>'september', 'dezember'=>'december', 'dez'=>'december');
-                $namedate = date("Y" . $dateseperator . "m" . $dateseperator . "d", strtotime(strtr(strtolower($matches[1] . ". " . $matches[2] . " " . $matches[4]), $germanMonths)));
-                break;
+                $foundtime = strtotime(strtr(strtolower(($matches[1] === '' ? '1':$matches[1]) . ". " . $matches[2] . " " . $matches[4]), $germanMonths));
+            } elseif (preg_match("/(31|30|[012]\d|\d)[-.\/](0\d|1[012]|\d)[-.\/](20[0-9][0-9])/", $line, $matches)) { // dd.mm.20yy
+                $foundtime = mktime(0,0,0,$matches[2],$matches[1],$matches[3]);
+            } elseif (preg_match("/(0\d|1[012]|\d)[-.\/](31|30|[012]\d|\d)[-.\/](20[0-9][0-9])/", $line, $matches)) { // mm.dd.20yy
+                $foundtime = mktime(0,0,0,$matches[1],$matches[2],$matches[3]);
+            } elseif (preg_match("/(20[0-9][0-9])[-.\/](31|30|[012]\d|\d)[-.\/](0\d|1[012]|\d)/", $line, $matches)) { // 20yy.mm.dd
+                $foundtime = mktime(0,0,0,$matches[2],$matches[3],$matches[1]);
             }
-	    unset($matches);
-            if (preg_match("/(31|30|[012]\d|\d)[-.\/](0\d|1[012]|\d)[-.\/](20[0-9][0-9])/", $line, $matches)) { // dd.mm.20yy
-                $namedate = join($dateseperator, array($matches[3], $matches[2], $matches[1]));
-                break;
-            }
-            unset($matches);
-            if (preg_match("/(0\d|1[012]|\d)[-.\/](31|30|[012]\d|\d)[-.\/](20[0-9][0-9])/", $line, $matches)) { // mm.dd.20yy
-                $namedate = join($dateseperator, array($matches[3], $matches[1], $matches[2]));
-                break;
-            }
-            unset($matches);
-            if (preg_match("/(20[0-9][0-9])[-.\/](31|30|[012]\d|\d)[-.\/](0\d|1[012]|\d)/", $line, $matches)) { // 20yy.mm.dd
-                $namedate = join($dateseperator, array($matches[1], $matches[2], $matches[3]));
+            
+            // consider date only if it's not in future (now +1 day jitter)
+            if (isset($foundtime) &&
+                $foundtime < (time() + (1 * 24 * 60 * 60))) {
+                trace(LOG_DEBUG, " foundtime:" . date("Y-m-d", $foundtime) . " in context: '" . $line . "'\n");
+                $filetime = $foundtime;
                 break;
             }
         }
+        
+        $namedate = date("Y" . $dateseperator . "m" . $dateseperator . "d", $filetime);
         return $namedate;
     }
     
