@@ -4,6 +4,10 @@ FileBasedMiniDMS.php    by Stefan Weiss (2017-2021)
 https://github.com/stweiss/FileBasedMiniDMS
 
 ### CHANGELOG
+Version 0.18-dev (03.02.2023)
+- new feature: incase you manually rename the file to have a proper date, map that back to file modification date. Adds *$doFixTimestampBasedOnName* to the config!
+- fixed finding correct date in form of yyyy-mm-dd in a PDF
+
 Version 0.17 (10.02.2021)
 - renamed default config.php to config.php.template (in git), so you can pull without overwriting your local config.php (issue #13)
 - introduced option to set the detected date as file date (variable $setfiletime, enabled by default) (issue #5)
@@ -56,8 +60,8 @@ OCR pdf files in the $inboxfolder, whose filename matches $matchWithoutOCR
 The pdf is going to be renamed to following structure: "\<date\> \<name\> \<tags\>.pdf"
 
 *\<date\>*: The script tries to find a date in the pdf. If none is found the current date is used.  
-*\<name\>*: You can define *$renamerules*. The first rule which matches the ocr'ed content of the first page is used. You can use the operators **&** (AND) and **,** (OR) and you can use the wildcard operators **?** and **\***.  
-*\<tags\>*: In *$tagrules* you can specify your tags. All matching rules will add their tag to the filename. You can use the same operators here.  
+*\<name\>*: You can define *\$renamerules*. The first rule which matches the ocr'ed content of the first page is used. You can use the operators **&** (AND) and **,** (OR) and you can use the wildcard operators **?** and **\***.  
+*\<tags\>*: In *\$tagrules* you can specify your tags. All matching rules will add their tag to the filename. You can use the same operators here.  
 
 #### Step 2: Tagging
 This script creates a subfolder for each hashtag it finds in your filenames

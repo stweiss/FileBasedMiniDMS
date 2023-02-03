@@ -1,8 +1,8 @@
 <?php
     /* 
-        FileBasedMiniDMS.php    by Stefan Weiss (2017-2021)
+        FileBasedMiniDMS.php    by Stefan Weiss (2017-2023)
     */
-    $version = "0.17";
+    $version = "0.18";
     
     // set some defaults
     $setfiletime = true;
@@ -64,6 +64,31 @@
     touch($inboxfolder . "/.FbmDMS_is_active");
     if ($logfile == "syslog") openlog("FileBasedMiniDMS", LOG_PID, LOG_USER);
     
+    if ($doFixTimestampBasedOnName) {
+        $allFiles = listAllFiles($inboxfolder);
+        
+        foreach ($allFiles as $scan) {
+            $scanpath_parts = pathinfo($scan);
+            
+            if (0 != strcasecmp("pdf", $scanpath_parts['extension']))
+                continue;
+            
+            if (preg_match("/(20[0-9][0-9])[^\d](0\d|1[012]|\d)[^\d](31|30|[012]\d|\d)[^\d]/",
+                           $scanpath_parts['filename'], $matches)) { // 20yy.mm.dd
+                $texttime = mktime(0,0,0,$matches[2],$matches[3],$matches[1]);
+                $filetime = filemtime($scan);
+                trace(LOG_DEBUG,"i see file <" . $scan . "> with textdate: " . date("Y-m-d", $texttime) . " and filedate: " . date("Y-m-d", $filetime) . "\n");
+
+                // only set new filetime, if the date-part of mtime does not match.
+                if ($filetime < $texttime || $filetime > $texttime + (1 * 24 * 60 * 60)) {
+                    trace(LOG_INFO,"fixing timestamp of " . $scanpath_parts['filename'] . " to: " . date("Y-m-d", $texttime) . "\n");
+                    if (!$testmode)
+                        touch($scan, $texttime);
+                }
+            }
+        }
+    }
+
     if ($doOCR) {
         trace(LOG_DEBUG, "Scanning for new scans: $inboxfolder\n");
         $newscans = listAllFiles($inboxfolder);
@@ -77,12 +102,12 @@
             if (filesize($scan) == 0)
                 continue;
             
-            // skip already OCR'ed files based on $OCRPrefix
+            // skip already OCR'ed files based on $OCRPrefix (default: all files matching "OCR_")
             if ($OCRPrefix &&
                 fnmatch($OCRPrefix . '*', $scanpath_parts['filename'], FNM_CASEFOLD))
                 continue;
             
-            // OCR new pdf's
+            // OCR new pdf's (defautl: all files matching "Scan*")
             if (fnmatch($matchWithoutOCR, $scanpath_parts['filename'], FNM_CASEFOLD))
             {
                 $ocrfilename = getOCRfilename($scan);
@@ -159,7 +184,7 @@
                         trace(LOG_ERR, "Could not rename '$scan' to '$newname'\n");
                     }
                     
-                    if ($setfiletime)
+                    if (!$testmode && $setfiletime)
                     {
                         // == set timestamp to detected date/time based on content
                         trace(LOG_INFO,"set filetime of " . $newname . " to:" . date("Y-m-d", $pdftime) . "\n");
@@ -282,7 +307,7 @@
                 $foundtime = mktime(0,0,0,$matches[2],$matches[1],$matches[3]);
             } elseif (preg_match("/(0\d|1[012]|\d)[-.\/](31|30|[012]\d|\d)[-.\/](20[0-9][0-9])/", $line, $matches)) { // mm.dd.20yy
                 $foundtime = mktime(0,0,0,$matches[1],$matches[2],$matches[3]);
-            } elseif (preg_match("/(20[0-9][0-9])[-.\/](31|30|[012]\d|\d)[-.\/](0\d|1[012]|\d)/", $line, $matches)) { // 20yy.mm.dd
+            } elseif (preg_match("/(20[0-9][0-9])[-.\/](0\d|1[012]|\d)[-.\/](31|30|[012]\d|\d)/", $line, $matches)) { // 20yy.mm.dd
                 $foundtime = mktime(0,0,0,$matches[2],$matches[3],$matches[1]);
             }
             

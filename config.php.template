@@ -3,6 +3,9 @@
     /* ----------------- Configuration Area ----------------- */
     /* ------------------------------------------------------ */
     
+    // incase you manually rename the file to have a proper date, map that back to file modification date
+    $doFixTimestampBasedOnName = true;
+    
     $doOCR = true;
     $doRenameAfterOCR = true;
     $doTagging = true;
