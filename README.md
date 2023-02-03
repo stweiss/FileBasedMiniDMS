@@ -1,44 +1,8 @@
 # FileBasedMiniDMS
 
-FileBasedMiniDMS.php    by Stefan Weiss (2017-2023)
+FileBasedMiniDMS.php by Stefan Weiss (2017-2023)<br>
 https://github.com/stweiss/FileBasedMiniDMS
 
-### CHANGELOG
-Version 0.18 (03.02.2023)
-- new feature: incase you manually rename the file to have a proper date, map that back to file modification date. Adds *$doFixTimestampBasedOnName* to the config!
-- fixed finding correct date in form of yyyy-mm-dd in a PDF
-
-Version 0.17 (10.02.2021)
-- renamed default config.php to config.php.template (in git), so you can pull without overwriting your local config.php (issue #13)
-- introduced option to set the detected date as file date (variable $setfiletime, enabled by default) (issue #5)
-- skip future dates during date detection
-- minor bugfixes
-
-Version 0.16 (29.10.2019)
-- Add date format 01. Januar, 2019 / 01 Januar 2019 (thanks @SirUli) (pull #12)
-- internal clean up
-
-Version 0.15 (27.09.2019)
-- now compatible with ocrmypdf v9.0.0
-
-Version 0.14 (12.04.2019)
-- don't ORC files, which already have been ocr'ed. Should have been happening only in special rare cases. (issue #9)
-- change to long php opening tags for better php compatibility (issue #6)
-
-Version 0.13 (22.10.2018)
-- improved detection of dates (thanks vanto) (pull #7)
-
-Version 0.12b (12.06.2017)
-- New: $dateseperator can be modified in config.php 
-- Change: Default date for rename is now creation date of the pdf. (was "now" before)
-
-Version 0.11 (08.06.2017)
-- New: automatic OCR and automatic rename
-        
-Version 0.02 (02.03.2016)
-- release of this file based document management system.
-- sorts files with hashtags into hashtag-folders.
-        
 ### INSTALL
 1. Place this file on your FileServer/NAS
 2. For OCR (Step 1): Install Docker and pull an ocrmypdf image, eg. ```docker pull jbarlow83/ocrmypdf```
@@ -87,5 +51,42 @@ will be linked into:
    getting removed.
 
 
-### Disclaimer
+### DISCLAIMER
 Make sure to have a backup before you start using this script. You use this software on your own risk.
+
+
+### CHANGELOG
+Version 0.18 (03.02.2023)
+- new feature: incase you manually rename the file to have a proper date, map that back to file modification date. Adds *$doFixTimestampBasedOnName* to the config!
+- fixed finding correct date in form of yyyy-mm-dd in a PDF
+
+Version 0.17 (10.02.2021)
+- renamed default config.php to config.php.template (in git), so you can pull without overwriting your local config.php (issue #13)
+- introduced option to set the detected date as file date (variable $setfiletime, enabled by default) (issue #5)
+- skip future dates during date detection
+- minor bugfixes
+
+Version 0.16 (29.10.2019)
+- Add date format 01. Januar, 2019 / 01 Januar 2019 (thanks @SirUli) (pull #12)
+- internal clean up
+
+Version 0.15 (27.09.2019)
+- now compatible with ocrmypdf v9.0.0
+
+Version 0.14 (12.04.2019)
+- don't ORC files, which already have been ocr'ed. Should have been happening only in special rare cases. (issue #9)
+- change to long php opening tags for better php compatibility (issue #6)
+
+Version 0.13 (22.10.2018)
+- improved detection of dates (thanks vanto) (pull #7)
+
+Version 0.12b (12.06.2017)
+- New: $dateseperator can be modified in config.php 
+- Change: Default date for rename is now creation date of the pdf. (was "now" before)
+
+Version 0.11 (08.06.2017)
+- New: automatic OCR and automatic rename
+        
+Version 0.02 (02.03.2016)
+- release of this file based document management system.
+- sorts files with hashtags into hashtag-folders.
