@@ -4,7 +4,7 @@ FileBasedMiniDMS.php    by Stefan Weiss (2017-2021)
 https://github.com/stweiss/FileBasedMiniDMS
 
 ### CHANGELOG
-Version 0.18-dev (03.02.2023)
+Version 0.18 (03.02.2023)
 - new feature: incase you manually rename the file to have a proper date, map that back to file modification date. Adds *$doFixTimestampBasedOnName* to the config!
 - fixed finding correct date in form of yyyy-mm-dd in a PDF
 
