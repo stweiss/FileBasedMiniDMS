@@ -1,6 +1,6 @@
 # FileBasedMiniDMS
 
-FileBasedMiniDMS.php by Stefan Weiss (2017-2023)<br>
+FileBasedMiniDMS.php by Stefan Weiss (2017-2024)<br>
 https://github.com/stweiss/FileBasedMiniDMS
 
 ### INSTALL
