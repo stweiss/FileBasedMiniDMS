@@ -56,6 +56,9 @@ Make sure to have a backup before you start using this script. You use this soft
 
 
 ### CHANGELOG
+Version 0.19 (06.12.2024)
+- set file modification date also if day is not present in filename. (eg. 2024-02 is mapped to 2024-02-01)
+
 Version 0.18 (03.02.2023)
 - new feature: incase you manually rename the file to have a proper date, map that back to file modification date. Adds *$doFixTimestampBasedOnName* to the config!
 - fixed finding correct date in form of yyyy-mm-dd in a PDF

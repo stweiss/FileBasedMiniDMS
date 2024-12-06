@@ -1,8 +1,8 @@
 <?php
     /* 
-        FileBasedMiniDMS.php    by Stefan Weiss (2017-2023)
+        FileBasedMiniDMS.php    by Stefan Weiss (2017-2024)
     */
-    $version = "0.18";
+    $version = "0.19";
     
     // set some defaults
     $setfiletime = true;
@@ -73,9 +73,9 @@
             if (0 != strcasecmp("pdf", $scanpath_parts['extension']))
                 continue;
             
-            if (preg_match("/(20[0-9][0-9])[^\d](0\d|1[012]|\d)[^\d](31|30|[012]\d|\d)[^\d]/",
+            if (preg_match("/(20[0-9][0-9])[^\d](0\d|1[012]|\d)([^\d](31|30|[012]\d|\d))?[^\d]/",
                            $scanpath_parts['filename'], $matches)) { // 20yy.mm.dd
-                $texttime = mktime(0,0,0,$matches[2],$matches[3],$matches[1]);
+                $texttime = mktime(0, 0, 0, $matches[2] ?? 1, $matches[4] ?? 1, $matches[1]);
                 $filetime = filemtime($scan);
                 trace(LOG_DEBUG,"i see file <" . $scan . "> with textdate: " . date("Y-m-d", $texttime) . " and filedate: " . date("Y-m-d", $filetime) . "\n");
 
